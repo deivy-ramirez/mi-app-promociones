@@ -1,5 +1,5 @@
 import { compare, hash } from 'bcryptjs'
-import { sign, verify } from 'jsonwebtoken'
+//import { sign, verify } from 'jsonwebtoken'
 
 export async function hashPassword(password) {
   return await hash(password, 12)
@@ -9,7 +9,7 @@ export async function verifyPassword(password, hashedPassword) {
   return await compare(password, hashedPassword)
 }
 
-export function createToken(payload) {
+/*export function createToken(payload) {
   return sign(payload, process.env.JWT_SECRET, { expiresIn: '100d' })
 }
 
@@ -30,3 +30,4 @@ export function verifyToken(req) {
     throw new Error('Invalid token')
   }
 }
+*/

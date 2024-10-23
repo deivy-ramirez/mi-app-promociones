@@ -7,9 +7,15 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' })
   }
 
+  //const token = req.headers.authorization?.split(' ')[1]
+
+  //if (!token) {
+    //return res.status(401).json({ message: 'Not authenticated' })
+  //}
+
   try {
-    const user = await verifyToken(req)
-    
+    //const user = await verifyToken(req)
+    //verifyToken(token)
     const { promotionId, code } = req.body
 
     const { db } = await connectToDatabase()

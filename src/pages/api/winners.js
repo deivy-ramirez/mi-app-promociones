@@ -6,14 +6,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' })
   }
 
-  const token = req.headers.authorization?.split(' ')[1]
+  //const token = req.headers.authorization?.split(' ')[1]
 
-  if (!token) {
-    return res.status(401).json({ message: 'Not authenticated' })
-  }
+  //if (!token) {
+    //return res.status(401).json({ message: 'Not authenticated' })
+  //}
 
   try {
-    verifyToken(token)
+    //verifyToken(token)
     const client = await clientPromise
     const db = client.db('myFirstDatabase')
 
