@@ -1,51 +1,51 @@
-import clientPromise from '../../../lib/mongodb'
-import { verifyPassword, createToken } from '../../../lib/auth'
+import { connectToDatabase } from '../../lib/mongodb'
+import { ObjectId } from 'mongodb'
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Método no permitido' })
+  // Permitir solicitudes POST y OPTIONS (para CORS)
+  if (req.method !== 'POST' && req.method !== 'OPTIONS') {
+    return res.status(405).json({ message: 'Method Not Allowed' })
   }
 
-  const { username, password } = req.body
+  // Manejar solicitudes OPTIONS para CORS
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    return res.status(200).end()
+  }
+
+  const { promotionId, code } = req.body
+
+  if (!promotionId || !code) {
+    return res.status(400).json({ message: 'Se requieren promotionId y code' })
+  }
 
   try {
-    console.log('Iniciando proceso de login para:', username)
-    const client = await clientPromise
-    const db = client.db('myFirstDatabase')
+    const { db } = await connectToDatabase()
+    const promotion = await db.collection('promotions').findOne({ _id: new ObjectId(promotionId) })
 
-    console.log('Conexión a la base de datos myFirstDatabase establecida')
-    console.log('Verificando colecciones en la base de datos:')
-    const collections = await db.listCollections().toArray()
-    console.log('Colecciones encontradas:', collections.map(c => c.name))
-
-    if (!collections.some(c => c.name === 'users')) {
-      console.error('La colección "usuarios" no existe en la base de datos')
-      return res.status(500).json({ message: 'Error de configuración de la base de datos' })
+    if (!promotion) {
+      return res.status(404).json({ message: 'Promoción no encontrada' })
     }
 
-    console.log('Buscando usuario en la colección "usuarios"')
-    const user = await db.collection('users').findOne({ username })
+    const isWinner = await db.collection('wincode').findOne({ promotionId, code })
 
-    if (!user) {
-      console.log('Usuario no encontrado:', username)
-      return res.status(401).json({ message: 'Credenciales inválidas' })
+    if (isWinner) {
+      await db.collection('winners').insertOne({
+        promotionId,
+        promotionName: promotion.name,
+        prize: promotion.prize,
+        code,
+        date: new Date()
+      })
+
+      res.status(200).json({ isWinner: true, message: '¡Felicidades! Has ganado el premio.' })
+    } else {
+      res.status(200).json({ isWinner: false, message: 'Lo siento, este código no es ganador. ¡Inténtalo de nuevo!' })
     }
-
-    console.log('Usuario encontrado, verificando contraseña')
-    const isValid = await verifyPassword(password, user.password)
-
-    if (!isValid) {
-      console.log('Contraseña inválida para:', username)
-      return res.status(401).json({ message: 'Credenciales inválidas' })
-    }
-
-    console.log('Contraseña válida, creando token para:', username)
-    const token = createToken({ userId: user._id.toString(), username: user.username })
-
-    console.log('Login exitoso para:', username)
-    res.status(200).json({ token })
   } catch (error) {
-    console.error('Error en login:', error)
-    res.status(500).json({ message: 'Error interno del servidor', error: error.toString() })
+    console.error('Error in verify API:', error)
+    res.status(500).json({ message: 'Error interno del servidor' })
   }
 }
