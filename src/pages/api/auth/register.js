@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   const { username, password, dateOfBirth, email, city } = req.body
 
   const client = await clientPromise
-  const db = client.db()
+  const db = client.db('myFirstDatabase')
 
   const existingUser = await db.collection('users').findOne({ username })
 

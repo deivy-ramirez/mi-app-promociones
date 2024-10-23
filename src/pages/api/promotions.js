@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   try {
     verifyToken(token)
     const client = await clientPromise
-    const db = client.db()
+    const db = client.db('myFirstDatabase')
 
     if (req.method === 'GET') {
       const promotions = await db.collection('promotions').find().toArray()
