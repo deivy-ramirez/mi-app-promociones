@@ -13,10 +13,27 @@ export function createToken(payload) {
   return sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' })
 }
 
-export function verifyToken(token) {
-  try {
-    return verify(token, process.env.JWT_SECRET)
-  } catch (error) {
-    throw new Error('Invalid token')
-  }
+export function verifyToken(req) {
+  return new Promise((resolve, reject) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      reject(new Error('No Authorization header'));
+      return;
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      reject(new Error('No token provided'));
+      return;
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (err) {
+        console.error('Token verification error:', err);
+        reject(new Error('Invalid token'));
+        return;
+      }
+      resolve(decoded);
+    });
+  });
 }
