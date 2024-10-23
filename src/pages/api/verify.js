@@ -36,11 +36,11 @@ export default async function handler(req, res) {
     } else {
       res.status(200).json({ isWinner: false, message: 'Lo siento, este código no es ganador. ¡Inténtalo de nuevo!' })
     }
-  } //catch (error) {
-   // console.error('Error in verify API:', error)
-   // if (error.message === 'Invalid token') {
-   //   return res.status(401).json({ message: 'Token inválido o expirado. Por favor, inicia sesión nuevamente.' })
-   // }
-   // res.status(500).json({ message: 'Error interno del servidor' })
- // }
+  } catch (error) {
+    console.error('Error in verify API:', error)
+    if (error.message === 'Invalid token') {
+      return res.status(401).json({ message: 'Token inválido o expirado. Por favor, inicia sesión nuevamente.' })
+    }
+    res.status(500).json({ message: 'Error interno del servidor' })
+  }
 }
