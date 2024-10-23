@@ -4,12 +4,16 @@ import { ObjectId } from 'mongodb'
 
 export default async function handler(req, res) {
   console.log('API route /api/profile called')
+  console.log('Headers:', req.headers)  // Log para ver los headers que llegan
+
 
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Method not allowed' })
   }
 
   const token = req.headers.authorization?.split(' ')[1]
+  console.log('Token from headers:', token)  // Log para ver el token
+
 
   if (!token) {
     return res.status(401).json({ message: 'No token provided' })
