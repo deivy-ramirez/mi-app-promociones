@@ -13,16 +13,16 @@ export default async function handler(req, res) {
     const { promotionId, code } = req.body
 
     const { db } = await connectToDatabase()
-    const promotion = await db.collection('promociones').findOne({ _id: new ObjectId(promotionId) })
+    const promotion = await db.collection('myFirstDatabase').findOne({ _id: new ObjectId(promotionId) })
 
     if (!promotion) {
       return res.status(404).json({ message: 'Promoción no encontrada' })
     }
 
-    const isWinner = await db.collection('codigosGanadores').findOne({ promotionId, code })
+    const isWinner = await db.collection('wincode').findOne({ promotionId, code })
 
     if (isWinner) {
-      await db.collection('ganadores').insertOne({
+      await db.collection('winners').insertOne({
         userId: user._id,
         username: user.username,
         promotionId,
