@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     const { promotionId, code } = req.body
 
     const { db } = await connectToDatabase()
-    const promotion = await db.collection('myFirstDatabase').findOne({ _id: new ObjectId(promotionId) })
+    const promotion = await db.collection('promotions').findOne({ _id: new ObjectId(promotionId) })
 
     if (!promotion) {
       return res.status(404).json({ message: 'Promoción no encontrada' })
