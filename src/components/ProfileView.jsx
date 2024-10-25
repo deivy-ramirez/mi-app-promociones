@@ -9,13 +9,13 @@ export default function ProfileView() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const token = localStorage.getItem('token')
+      /*const token = localStorage.getItem('token')
       if (!token) {
         console.log('No token found, redirecting to login')
         router.push('/login')
         return
       }
-
+      */
       try {
         const response = await fetch('/api/profile', {
           headers: {
